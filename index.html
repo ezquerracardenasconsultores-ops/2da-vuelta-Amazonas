@@ -1,1 +1,1002 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Amazonas 2026 | Observatorio Electoral</title>
+<meta name="description" content="Dashboard de resultados electorales de Amazonas 2022-2026 y simulador de supuestos matemáticos. Sin predicción electoral.">
+<style>
+:root{
+  --ink:#122a3c;
+  --muted:#607588;
+  --bg:#f3f6fa;
+  --white:#fff;
+  --line:#dce4ed;
+  --a:#087f79;
+  --b:#bb7059;
+  --blue:#255c94;
+  --navy:#102b42
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  font:15px/1.55 system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  color:var(--ink)
+}
+button,input{font:inherit}
+button{cursor:pointer}
+a{color:#08726f}
+a:focus-visible,button:focus-visible,input:focus-visible{
+  outline:3px solid #68bbba;
+  outline-offset:2px
+}
+.wrap{max-width:1240px;margin:auto;padding:0 20px}
+.mast{background:var(--navy);color:white}
+.mast .wrap{padding-top:30px;padding-bottom:34px}
+.eyebrow{
+  font-size:12px;
+  color:#9bdcd7;
+  font-weight:800;
+  letter-spacing:.14em;
+  text-transform:uppercase
+}
+h1{
+  font-size:clamp(29px,4.2vw,47px);
+  line-height:1.12;
+  letter-spacing:-.035em;
+  margin:10px 0 12px
+}
+.mast p{max-width:800px;color:#c7d8e3;margin:0}
+.minichips{display:flex;gap:9px;flex-wrap:wrap;margin-top:19px}
+.chip{
+  font-size:12px;
+  border:1px solid #6d8a9e;
+  border-radius:20px;
+  padding:5px 10px;
+  color:#d6e8ed
+}
+.tabs{
+  background:#fff;
+  border-bottom:1px solid var(--line);
+  position:sticky;
+  top:0;
+  z-index:5
+}
+.tabs .wrap{display:flex;gap:5px;overflow:auto}
+.tab{
+  border:0;
+  border-bottom:3px solid transparent;
+  background:transparent;
+  padding:15px 17px;
+  color:#597182;
+  white-space:nowrap;
+  font-weight:750
+}
+.tab.on{color:var(--a);border-bottom-color:var(--a)}
+main{padding-top:24px!important;padding-bottom:65px!important}
+.view{display:none}
+.view.on{display:block}
+.grid{display:grid;gap:14px}
+.metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:21px;
+  box-shadow:0 7px 22px #122a3c09
+}
+.metric small,.muted{color:var(--muted)}
+.metric small{display:block;font-weight:700}
+.metric strong{
+  display:block;
+  font-size:clamp(23px,3vw,34px);
+  line-height:1.2;
+  margin:8px 0
+}
+.metric span{color:#698091;font-size:12px}
+.split{
+  display:grid;
+  grid-template-columns:1.18fr .82fr;
+  gap:14px;
+  margin-top:15px
+}
+h2{font-size:22px;margin:0 0 12px}
+h3{font-size:17px;margin:0 0 12px}
+.help{color:var(--muted);font-size:13px;margin:0 0 17px}
+.barrow{margin:14px 0}
+.barlabel{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  font-size:13px
+}
+.barlabel b{white-space:nowrap}
+.track{
+  height:14px;
+  border-radius:50px;
+  background:#eaf0f4;
+  overflow:hidden;
+  margin-top:6px
+}
+.fill{
+  height:100%;
+  width:0;
+  background:var(--blue);
+  border-radius:50px;
+  transition:width .28s
+}
+.fill.a{background:var(--a)}
+.fill.b{background:var(--b)}
+.fill.c{background:#718da7}
+.callout{
+  background:#e9f5f2;
+  border:1px solid #c7e8e1;
+  color:#245f5e;
+  padding:15px;
+  border-radius:12px;
+  font-size:13px;
+  margin-top:12px
+}
+.warn{
+  background:#fff7e6;
+  border:1px solid #e9d6ad;
+  color:#775a24;
+  padding:15px;
+  border-radius:12px;
+  font-size:13px;
+  margin:14px 0
+}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.numbers{display:flex;gap:10px;flex-wrap:wrap}
+.stat{
+  flex:1;
+  min-width:130px;
+  background:#f0f5f8;
+  padding:14px;
+  border-radius:12px
+}
+.stat strong{font-size:25px;display:block}
+.stat small{color:var(--muted)}
+.tablewrap{overflow:auto}
+table{
+  border-collapse:collapse;
+  width:100%;
+  font-size:13px;
+  min-width:530px
+}
+th,td{
+  padding:11px 12px;
+  text-align:left;
+  border-bottom:1px solid #e6edf2
+}
+th{background:#eef3f7;color:#4b6172;font-size:12px}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.emph{background:#f0f8f6;font-weight:700}
+.subtle{font-size:12px;color:var(--muted)}
+.province{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+  margin-top:15px
+}
+.province select{
+  width:100%;
+  max-width:410px;
+  padding:12px;
+  border:1px solid #c9d8e3;
+  border-radius:9px;
+  background:white
+}
+.provinceDetails{font-size:14px}
+.provinceDetails h3{font-size:24px;margin:8px 0}
+.badge{
+  display:inline-flex;
+  background:#e4f4f0;
+  border-radius:20px;
+  padding:4px 9px;
+  color:#15796f;
+  font-size:12px;
+  font-weight:800
+}
+.control{margin-bottom:24px}
+.controlhead{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  gap:10px
+}
+.controlhead strong{font-size:21px;color:var(--blue)}
+input[type=range]{
+  width:100%;
+  accent-color:#087f79;
+  cursor:pointer;
+  margin:12px 0
+}
+.rangeEnds{
+  display:flex;
+  justify-content:space-between;
+  font-size:11px;
+  color:var(--muted)
+}
+.source{
+  margin:12px 0;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff
+}
+.source small{display:block;color:var(--muted);margin-top:3px}
+.footer{
+  border-top:1px solid var(--line);
+  padding:22px 0 30px;
+  font-size:12px;
+  color:#607588
+}
+.btn{
+  padding:10px 15px;
+  border:1px solid #bbd2d6;
+  color:#196561;
+  border-radius:9px;
+  background:white;
+  font-weight:700
+}
+.btn:hover{background:#e9f5f3}
+.tools{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}
+.piebar{
+  display:flex;
+  height:21px;
+  overflow:hidden;
+  border-radius:20px;
+  margin:15px 0
+}
+.piebar span{height:100%}
+.legend{
+  display:flex;
+  gap:15px;
+  flex-wrap:wrap;
+  color:#607588;
+  font-size:12px
+}
+.dot{
+  display:inline-block;
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  margin-right:5px
+}
+@media(max-width:800px){
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .split,.province{grid-template-columns:1fr}
+  .two{grid-template-columns:1fr}
+}
+@media(max-width:460px){
+  .metric strong{font-size:24px}
+  .card{padding:16px}
+  .wrap{padding-left:13px;padding-right:13px}
+  .tab{padding:13px}
+}
+@media print{
+  .tabs,.tools,.control input{display:none!important}
+  .view{display:block!important;break-before:page}
+  .mast{color:#172c3d;background:white}
+  .mast p,.eyebrow{color:#333}
+  .card{box-shadow:none}
+  .wrap{max-width:none}
+}
+</style>
+</head>
+<body>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="eyebrow">Observatorio electoral · Amazonas, Perú</div>
+    <h1>¿Cómo ha votado Amazonas?</h1>
+    <p>
+      Resultados de gobernador regional en 2022 y octubre de 2026,
+      datos de las siete provincias y simulación transparente
+      de supuestos para diciembre de 2026.
+    </p>
+    <div class="minichips">
+      <span class="chip">Datos históricos, no encuestas</span>
+      <span class="chip">7 provincias</span>
+      <span class="chip">Modelo hipotético, no pronóstico</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Secciones">
+  <div class="wrap">
+    <button class="tab on" data-tab="resumen">01 · Resultados</button>
+    <button class="tab" data-tab="territorio">02 · Provincias</button>
+    <button class="tab" data-tab="modelo">03 · Simulador</button>
+    <button class="tab" data-tab="fuentes">04 · Fuentes</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<section id="resumen" class="view on">
+
+  <div class="grid metrics">
+    <div class="card metric">
+      <small>Padrón de electores 2026</small>
+      <strong>348.859</strong>
+      <span>RENIEC, padrón definitivo</span>
+    </div>
+    <div class="card metric">
+      <small>Votos emitidos 2026</small>
+      <strong>239.490</strong>
+      <span>68,65% de participación</span>
+    </div>
+    <div class="card metric">
+      <small>Votos válidos 2026</small>
+      <strong>203.907</strong>
+      <span>85,14% de emitidos</span>
+    </div>
+    <div class="card metric">
+      <small>Otros candidatos 2026</small>
+      <strong>103.061</strong>
+      <span>50,54% de votos válidos</span>
+    </div>
+  </div>
+
+  <div class="split">
+    <div class="card">
+      <h2>Primera vuelta · 4 de octubre de 2026</h2>
+      <p class="help">
+        Votos para gobernador regional, no resultados de alcaldías.
+        Cómputo al 100% publicado el 16/10/2026.
+      </p>
+      <div id="bars2026"></div>
+    </div>
+
+    <div class="card">
+      <h2>Composición del voto emitido</h2>
+      <div class="piebar" id="composicion"></div>
+      <div class="legend">
+        <span><i class="dot" style="background:#087f79"></i>Válidos</span>
+        <span><i class="dot" style="background:#e9ae56"></i>Blancos</span>
+        <span><i class="dot" style="background:#bc765e"></i>Nulos</span>
+      </div>
+      <div class="numbers" style="margin-top:19px">
+        <div class="stat"><small>Blancos</small><strong>22.776</strong></div>
+        <div class="stat"><small>Nulos</small><strong>12.807</strong></div>
+      </div>
+      <div class="callout">
+        Los 103.061 votos obtenidos por candidaturas que no
+        pasaron a segunda vuelta no constituyen un bloque
+        transferible. El voto es individual y secreto.
+      </div>
+    </div>
+  </div>
+
+  <div class="split">
+    <div class="card">
+      <h2>Participación histórica</h2>
+      <p class="help">
+        Porcentaje de electores habilitados que acudieron a votar.
+      </p>
+      <div id="turnoutBars"></div>
+    </div>
+    <div class="card">
+      <h2>Resultados 2022 · segunda vuelta</h2>
+      <p class="help">4 de diciembre de 2022</p>
+      <div id="bars2022"></div>
+      <p class="subtle">
+        En 2022 votaron 44.691 personas menos en segunda vuelta
+        que en la primera. Es un antecedente, no una tasa
+        garantizada para 2026.
+      </p>
+    </div>
+  </div>
+
+</section>
+
+<section id="territorio" class="view">
+
+  <div class="card">
+    <h2>Electores de las siete provincias · 2026</h2>
+    <p class="help">
+      Padrón definitivo RENIEC. No son votos emitidos
+      ni preferencias políticas.
+    </p>
+    <div id="padronBars"></div>
+  </div>
+
+  <div class="province">
+    <div class="card">
+      <h2>Histórico territorial de Segundo Hernández</h2>
+      <p class="help">
+        Votos recibidos para gobernador en la primera vuelta
+        de 2022; muestran una distribución histórica,
+        no la de diciembre de 2026.
+      </p>
+      <div id="h2022Bars"></div>
+    </div>
+
+    <div class="card">
+      <h2>Explorar una provincia</h2>
+      <label for="selProvincia">Provincia</label>
+      <div style="margin:10px 0">
+        <select id="selProvincia"></select>
+      </div>
+      <div id="provinceDetails" class="provinceDetails"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <h2>Utcubamba: comparación documentada de octubre de 2026</h2>
+    <p class="help">
+      Votos para gobernador regional, según recuento ONPE
+      citado por Esfera Radio (21/10/2026).
+    </p>
+    <div id="utcubambaBars"></div>
+    <div class="numbers" style="margin-top:16px">
+      <div class="stat">
+        <small>Hernández</small><strong>22.236</strong>
+      </div>
+      <div class="stat">
+        <small>Díaz</small><strong>13.733</strong>
+      </div>
+      <div class="stat">
+        <small>Diferencia registrada</small><strong>8.503</strong>
+      </div>
+    </div>
+    <div class="warn">
+      La diferencia de 8.503 es un dato de la elección
+      de octubre, no una cantidad de votos que pueda
+      atribuirse, trasladarse o garantizarse en diciembre.
+      No contamos aquí con los resultados de gobernador
+      de 2026 desagregados para las otras seis provincias.
+    </div>
+  </div>
+
+</section>
+
+<section id="modelo" class="view">
+
+  <div class="card">
+    <h2>Simulador de supuestos · segunda vuelta 2026</h2>
+    <p class="help">
+      Parte de los 239.490 votantes de octubre de 2026.
+      Permite explorar una reducción adicional de asistencia,
+      el porcentaje de votos válidos y distribuciones aritméticas
+      entre las dos candidaturas.
+      <b>
+        No representa una encuesta, una proyección estadística
+        ni una probabilidad de ganar.
+      </b>
+    </p>
+
+    <div class="warn">
+      Interpretación de tu hipótesis: «15% no irá» significa
+      que dejaría de votar el 15% de quienes sí votaron
+      en octubre (no el 15% del padrón completo).
+      «±5%» se representa como ±5 <b>puntos porcentuales</b>
+      sobre una división 50/50; no es un margen
+      de error muestral.
+    </div>
+
+    <div class="two">
+      <div class="control">
+        <div class="controlhead">
+          <label for="ausencia">
+            <b>Reducción de votantes frente a octubre</b>
+          </label>
+          <strong id="ausenciaTxt">15%</strong>
+        </div>
+        <input id="ausencia" type="range"
+          min="0" max="35" step="1" value="15">
+        <div class="rangeEnds">
+          <span>0%</span><span>35%</span>
+        </div>
+      </div>
+
+      <div class="control">
+        <div class="controlhead">
+          <label for="validos">
+            <b>Porcentaje de votos válidos</b>
+          </label>
+          <strong id="validosTxt">85,14%</strong>
+        </div>
+        <input id="validos" type="range"
+          min="70" max="100" step="0.01" value="85.14">
+        <div class="rangeEnds">
+          <span>70%</span><span>100%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="control">
+        <div class="controlhead">
+          <label for="reparto">
+            <b>Distribución ilustrativa: Díaz</b>
+          </label>
+          <strong id="repartoTxt">50%</strong>
+        </div>
+        <input id="reparto" type="range"
+          min="45" max="55" step="1" value="50">
+        <div class="rangeEnds">
+          <span>45% Díaz / 55% Hernández</span>
+          <span>55% Díaz / 45% Hernández</span>
+        </div>
+      </div>
+
+      <div class="card" style="background:#f0f7f5;box-shadow:none">
+        <div class="subtle">Parámetros inicialmente elegidos</div>
+        <p style="margin-bottom:0">
+          15% de reducción de asistencia, mantenimiento aproximado
+          de la tasa de votos válidos de octubre y reparto ilustrativo
+          50/50 con variaciones de ±5 puntos.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid metrics" style="margin-top:15px">
+    <div class="card metric">
+      <small>Votantes hipotéticos</small>
+      <strong id="mEmitidos">—</strong>
+      <span>Asistencia simulada</span>
+    </div>
+    <div class="card metric">
+      <small>Votos válidos hipotéticos</small>
+      <strong id="mValidos">—</strong>
+      <span>Después de blancos y nulos</span>
+    </div>
+    <div class="card metric">
+      <small>Blancos y nulos estimados</small>
+      <strong id="mInvalidos">—</strong>
+      <span>Solo cálculo aritmético</span>
+    </div>
+    <div class="card metric">
+      <small>Participación hipotética</small>
+      <strong id="mParticipacion">—</strong>
+      <span>Sobre padrón de 348.859</span>
+    </div>
+  </div>
+
+  <div class="split">
+    <div class="card">
+      <h2>Distribución elegida con el control</h2>
+      <div id="simBars"></div>
+      <div class="callout">
+        Modificar el reparto altera exclusivamente el cálculo
+        mostrado. No significa que los votantes de otros partidos
+        cambien sus preferencias de esa manera.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Intervalo ilustrativo 45%–55%</h2>
+      <p class="help">
+        Tres repartos hipotéticos, sin asignar probabilidad
+        a ninguno.
+      </p>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Díaz / Hernández</th>
+              <th class="num">Díaz</th>
+              <th class="num">Hernández</th>
+            </tr>
+          </thead>
+          <tbody id="escenarios"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tools">
+    <button class="btn" id="reset">Restablecer supuestos</button>
+    <button class="btn" id="csv">Exportar resultados históricos (CSV)</button>
+    <button class="btn" onclick="window.print()">Imprimir</button>
+  </div>
+
+</section>
+
+<section id="fuentes" class="view">
+  <div class="card">
+    <h2>Fuentes y definiciones</h2>
+    <p class="help">
+      Se indican las fuentes de los datos históricos;
+      este sitio funciona sin conexión, pero los enlaces
+      necesitan internet.
+    </p>
+
+    <div class="source">
+      <b>1. ONPE: datos abiertos de 2022</b>
+      <small>
+        Resultados por mesa para primera y segunda vuelta regional.
+        Base oficial para cotejar el histórico provincial.
+      </small>
+      <a href="https://www.datosabiertos.gob.pe/dataset/resultados-por-mesa-de-las-elecciones-de-gobernadores-y-vicegobernadores-regionales-2022"
+        target="_blank" rel="noopener">Primera vuelta 2022</a>
+      ·
+      <a href="https://www.datosabiertos.gob.pe/dataset/resultados-por-mesa-de-las-elecciones-de-gobernadores-y-vicegobernadores-regionales-2022-3"
+        target="_blank" rel="noopener">Segunda vuelta 2022</a>
+    </div>
+
+    <div class="source">
+      <b>2. RENIEC: padrón electoral definitivo de Amazonas 2026</b>
+      <small>
+        348.859 electores habilitados, con detalle de las siete
+        provincias. Nota institucional del 15/06/2026.
+      </small>
+      <a href="https://www.gob.pe/institucion/reniec/noticias/1406429-reniec-amazonas-registra-349-859-electores-para-las-elecciones-regionales-y-municipales"
+        target="_blank" rel="noopener">Consultar publicación</a>
+    </div>
+
+    <div class="source">
+      <b>3. ONPE 2026: resumen regional difundido por Reina de la Selva</b>
+      <small>
+        Resultados al 100% de actas, 16/10/2026:
+        203.907 válidos, 22.776 blancos, 12.807 nulos
+        y 239.490 emitidos.
+      </small>
+      <a href="https://reinadelaselva.pe/amazonas-somos-peru-y-unidos-al-campo-van-a-segunda-vuelta-separados-por-4798-votos/"
+        target="_blank" rel="noopener">Consultar publicación</a>
+    </div>
+
+    <div class="source">
+      <b>4. Esfera Radio: desglose de gobernador en Utcubamba</b>
+      <small>
+        Nota de opinión del 21/10/2026 basada en el cómputo
+        de ONPE: 22.236 para Hernández y 13.733 para Díaz.
+      </small>
+      <a href="https://esferaradio.net/noticias/noticia"
+        target="_blank" rel="noopener">Consultar nota</a>
+    </div>
+
+    <div class="source">
+      <b>5. Histórico 2022 por provincia</b>
+      <small>
+        Tabla agregada de 2022: cifras reproducidas en
+        recopilación pública. Contrastables con el archivo
+        de datos abiertos de ONPE.
+      </small>
+      <a href="https://es.wikipedia.org/wiki/Elecciones_regionales_de_Amazonas_de_2022"
+        target="_blank" rel="noopener">Consultar tablas</a>
+    </div>
+
+    <div class="warn">
+      <b>Precisión de medición:</b>
+      la diferencia entre los valores reales de 2022 y 2026
+      es observable; el reparto futuro, la abstención adicional
+      del 15% y la banda ±5 puntos son hipótesis editables,
+      no resultados de encuestas ni pronósticos.
+      El porcentaje de votos válidos no equivale
+      al porcentaje de asistencia.
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    Observatorio estadístico de Amazonas · Elaboración informativa
+    independiente · Datos hasta octubre de 2026 ·
+    No representa a ONPE ni al JNE.
+  </div>
+</footer>
+
+<script>
+'use strict';
+
+const PADRON = 348859;
+const EMITIDOS = 239490;
+const VALIDOS = 203907;
+const BLANCOS = 22776;
+const NULOS = 12807;
+
+const primera2026 = [
+  {nombre:'Amílcar Díaz · Somos Perú',v:52822,c:'#087f79'},
+  {nombre:'Segundo Hernández · Unidos al Campo',v:48024,c:'#bb7059'},
+  {nombre:'Victoria Amazonense',v:45688,c:'#638aaf'},
+  {nombre:'Alianza para el Progreso',v:44429,c:'#8a8eb8'},
+  {nombre:'Juntos por el Perú',v:12055,c:'#b3a85d'},
+  {nombre:'Frepap',v:889,c:'#a5b4bd'}
+];
+
+const segunda2022 = [
+  {
+    nombre:'Gilmer Horna · Sentimiento Amazonense',
+    v:85008,c:'#087f79'
+  },
+  {
+    nombre:'Grimaldo Vásquez · Victoria Amazonense',
+    v:79852,c:'#bb7059'
+  }
+];
+
+const provincias = [
+  {n:'Bagua',pad:70600,h22:6188,gh22:14884,gv22:16316},
+  {n:'Bongará',pad:22375,h22:2112,gh22:7042,gv22:5176},
+  {n:'Chachapoyas',pad:45846,h22:839,gh22:14834,gv22:9673},
+  {n:'Condorcanqui',pad:48245,h22:3186,gh22:9710,gv22:5322},
+  {n:'Luya',pad:40568,h22:248,gh22:9909,gv22:10625},
+  {
+    n:'Rodríguez de Mendoza',
+    pad:26250,h22:136,gh22:6449,gv22:7171
+  },
+  {
+    n:'Utcubamba',
+    pad:94975,h22:18423,gh22:22180,gv22:25569,
+    h26:22236,a26:13733
+  }
+];
+
+const fmt = n => Math.round(n).toLocaleString('es-PE');
+
+const pct = (n,d,dec=1) =>
+  (100*n/d).toLocaleString('es-PE',{
+    minimumFractionDigits:dec,
+    maximumFractionDigits:dec
+  }) + '%';
+
+const $ = id => document.getElementById(id);
+
+function rowBar(name,n,max,color,label){
+  return `
+    <div class="barrow">
+      <div class="barlabel">
+        <span>${name}</span>
+        <b>${label || fmt(n)}</b>
+      </div>
+      <div class="track">
+        <div class="fill"
+          style="width:${n/max*100}%;background:${color}">
+        </div>
+      </div>
+    </div>`;
+}
+
+function plot(){
+
+  $('bars2026').innerHTML = primera2026.map(x =>
+    rowBar(
+      x.nombre,x.v,52822,x.c,
+      fmt(x.v)+' · '+pct(x.v,VALIDOS,2)
+    )
+  ).join('');
+
+  $('bars2022').innerHTML = segunda2022.map(x =>
+    rowBar(
+      x.nombre,x.v,85008,x.c,
+      fmt(x.v)+' · '+pct(x.v,164860,2)
+    )
+  ).join('');
+
+  $('turnoutBars').innerHTML = [
+    ['Primera vuelta 2022',225565,319326],
+    ['Segunda vuelta 2022',180874,319326],
+    ['Primera vuelta 2026',EMITIDOS,PADRON]
+  ].map(x =>
+    rowBar(
+      x[0],
+      x[1]/x[2],
+      .8,
+      '#087f79',
+      pct(x[1],x[2],2)
+    )
+  ).join('');
+
+  $('composicion').innerHTML = [
+    [VALIDOS,'#087f79'],
+    [BLANCOS,'#e9ae56'],
+    [NULOS,'#bc765e']
+  ].map(x =>
+    `<span style="width:${x[0]/EMITIDOS*100}%;
+      background:${x[1]}"></span>`
+  ).join('');
+
+  $('padronBars').innerHTML = provincias.map(x =>
+    rowBar(
+      x.n,x.pad,94975,'#255c94',
+      fmt(x.pad)+' · '+pct(x.pad,PADRON)
+    )
+  ).join('');
+
+  $('h2022Bars').innerHTML = provincias.map(x =>
+    rowBar(
+      x.n,x.h22,18423,'#bb7059',
+      fmt(x.h22)
+    )
+  ).join('');
+
+  $('utcubambaBars').innerHTML =
+    rowBar(
+      'Segundo Hernández',22236,22236,
+      '#bb7059',fmt(22236)
+    ) +
+    rowBar(
+      'Amílcar Díaz',13733,22236,
+      '#087f79',fmt(13733)
+    );
+}
+
+function province(){
+
+  let x = provincias[$('selProvincia').value];
+  if(!x) return;
+
+  $('provinceDetails').innerHTML = `
+    <span class="badge">Resultados documentados</span>
+    <h3>${x.n}</h3>
+
+    <div class="numbers">
+      <div class="stat">
+        <small>Electores 2026</small>
+        <strong>${fmt(x.pad)}</strong>
+      </div>
+      <div class="stat">
+        <small>Hernández, primera vuelta 2022</small>
+        <strong>${fmt(x.h22)}</strong>
+      </div>
+    </div>
+
+    <p>
+      En la segunda vuelta de 2022, Gilmer Horna obtuvo
+      <b>${fmt(x.gh22)}</b> votos y Grimaldo Vásquez
+      <b>${fmt(x.gv22)}</b> en esta provincia.
+    </p>
+
+    ${x.h26!=null ? `
+      <div class="callout">
+        Gobernador, octubre 2026: Hernández
+        <b>${fmt(x.h26)}</b>; Díaz
+        <b>${fmt(x.a26)}</b>.
+        Diferencia registrada:
+        <b>${fmt(x.h26-x.a26)}</b>.
+      </div>` : `
+      <div class="warn">
+        No se incorpora una cifra provincial de gobernador
+        2026 porque aún no fue verificada para esta provincia.
+      </div>`}
+
+    <p class="subtle">
+      Padrón 2026, resultados de 2022 y votos emitidos
+      de 2026 son magnitudes distintas; no deben interpretarse
+      como la misma población de votantes.
+    </p>`;
+}
+
+function modelo(){
+
+  const aus = +$('ausencia').value;
+  const valid = +$('validos').value;
+  const rep = +$('reparto').value;
+
+  // El 15% se aplica sobre quienes votaron en octubre,
+  // no sobre el total de electores habilitados.
+  const em = Math.round(EMITIDOS*(1-aus/100));
+
+  // La tasa de votos válidos se aplica a los votos emitidos.
+  const va = Math.round(em*valid/100);
+
+  // Reparto aritmético de dos candidaturas.
+  const dia = Math.round(va*rep/100);
+  const her = va-dia;
+
+  $('ausenciaTxt').textContent = aus+'%';
+  $('validosTxt').textContent =
+    valid.toLocaleString('es-PE')+'%';
+  $('repartoTxt').textContent = rep+'%';
+
+  $('mEmitidos').textContent = fmt(em);
+  $('mValidos').textContent = fmt(va);
+  $('mInvalidos').textContent = fmt(em-va);
+  $('mParticipacion').textContent = pct(em,PADRON,2);
+
+  $('simBars').innerHTML =
+    rowBar(
+      'Amílcar Díaz · '+rep+'%',
+      dia,va,'#087f79',fmt(dia)
+    ) +
+    rowBar(
+      'Segundo Hernández · '+(100-rep)+'%',
+      her,va,'#bb7059',fmt(her)
+    );
+
+  $('escenarios').innerHTML = [45,50,55].map(x => {
+    let d = Math.round(va*x/100);
+    let h = va-d;
+
+    return `
+      <tr${x===50 ? ' class="emph"' : ''}>
+        <td>${x}% / ${100-x}%</td>
+        <td class="num">${fmt(d)}</td>
+        <td class="num">${fmt(h)}</td>
+      </tr>`;
+  }).join('');
+}
+
+function csv(){
+
+  const rows = [
+    ['Año','Elección','Organización / candidato','Votos'],
+
+    ...primera2026.map(x =>
+      ['2026','Primera vuelta',x.nombre,x.v]
+    ),
+
+    ...segunda2022.map(x =>
+      ['2022','Segunda vuelta',x.nombre,x.v]
+    ),
+
+    ['2022','Primera vuelta','Segundo Hernández',31132],
+    ['2026','Utcubamba: gobernador','Segundo Hernández',22236],
+    ['2026','Utcubamba: gobernador','Amílcar Díaz',13733]
+  ];
+
+  const s = '\ufeff' + rows.map(r =>
+    r.map(v =>
+      '"' + String(v).replaceAll('"','""') + '"'
+    ).join(';')
+  ).join('\r\n');
+
+  const url = URL.createObjectURL(
+    new Blob([s],{type:'text/csv;charset=utf-8'})
+  );
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'amazonas_resultados_historicos.csv';
+  a.click();
+
+  setTimeout(()=>URL.revokeObjectURL(url),1200);
+}
+
+// Navegación por secciones.
+for(const b of document.querySelectorAll('[data-tab]')){
+  b.onclick = () => {
+
+    document.querySelectorAll('.tab').forEach(x =>
+      x.classList.toggle('on',x===b)
+    );
+
+    document.querySelectorAll('.view').forEach(x =>
+      x.classList.toggle('on',x.id===b.dataset.tab)
+    );
+
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+}
+
+// Selector provincial.
+$('selProvincia').innerHTML = provincias.map((x,i) =>
+  `<option value="${i}"
+    ${x.n==='Utcubamba' ? 'selected' : ''}>
+    ${x.n}</option>`
+).join('');
+
+$('selProvincia').addEventListener('change',province);
+
+// Controles del simulador.
+['ausencia','validos','reparto'].forEach(id =>
+  $(id).addEventListener('input',modelo)
+);
+
+$('reset').onclick = () => {
+  $('ausencia').value = 15;
+  $('validos').value = 85.14;
+  $('reparto').value = 50;
+  modelo();
+};
+
+$('csv').onclick = csv;
+
+// Inicialización.
+plot();
+province();
+modelo();
+
+</script>
+</body>
+</html>
+
